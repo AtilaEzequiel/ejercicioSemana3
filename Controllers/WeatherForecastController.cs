@@ -101,9 +101,9 @@ namespace ejercicioSemana3.Controllers
         }
 
         [HttpGet]
-        [Route("ejercicio1")]
+        [Route("listaExecute")]
         //filtrado por status
-        public dynamic Ejercicio1()
+        public dynamic listaExecute()
         {
             SqlConnection connection = new SqlConnection(connectionString);
             //abre la coencta
