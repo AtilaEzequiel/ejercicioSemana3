@@ -151,7 +151,6 @@ namespace ejercicioSemana3.Controllers
 
         [HttpPost]
         [Route("Filtradoaño")]
-
         public dynamic Filtradoaño(int alo)
         {
             SqlConnection connection = new SqlConnection(connectionString);
@@ -207,37 +206,45 @@ namespace ejercicioSemana3.Controllers
 
         [HttpPost]
         [Route("IngresoDeOrden")]
-
         public dynamic IngresoDeOrden(string action,  string symbol, int quantity, decimal price)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            //abre la coencta
-            connection.Open();
-            // guarda en un string el codigo sql a ejecutar
-            //string queryString = "Select * from Carrera";
-            string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES ('@GETDATE', '@action', 'PENDING', '@symbol', @quantity, @price) ";
-           // string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES ('@GETDATE', '@action', 'PENDING', '@symbol', @quantity, @price) SELECT * FROM ORDERS_HISTORY WHERE ORDER_DATE= GETDATE() AND STATUS='PENDING' AND QUANTITY=@quantity AND PRICE=@price AND ACTION='@action' AND SYMBOL='@symbol'";
+            if (action == "SELL" || action == "BUY")
+            {
+                SqlConnection connection = new SqlConnection(connectionString);
+                //abre la coencta
+                connection.Open();
+                // guarda en un string el codigo sql a ejecutar
+                //string queryString = "Select * from Carrera";
 
-            //string queryString = "INSERT INTO MovieADO (Id, titulo, fecha, genero, precio) VALUES (10, 'Delta', 15/12/1999, 'magia', 600);";
-            // no me acurdo, creoq ue guarda en un comadno sql lo que debe ejecutar y en que conexion hacerlo
-            SqlCommand command = new SqlCommand(queryString, connection);
-            //  command.ExecuteReader(queryString);
-            command.Parameters.AddWithValue("@action", action);
-            
-            command.Parameters.AddWithValue("@GETDATE", "GETDATE()");
+                string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, 'PENDING', @symbol, @quantity, @price) ";
+                //  string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES ('@GETDATE', '@action', 'PENDING', '@symbol', @quantity, @price) SELECT * FROM ORDERS_HISTORY WHERE ORDER_DATE= GETDATE() AND STATUS='PENDING' AND QUANTITY=@quantity AND PRICE=@price AND ACTION='@action' AND SYMBOL='@symbol'";
 
-            command.Parameters.AddWithValue("@symbol", symbol);
-            command.Parameters.AddWithValue("@quantity", quantity);
-            command.Parameters.AddWithValue("@price", price);
-            //ejecuta el codigo sql y guarda en reader
+                // no me acurdo, creoq ue guarda en un comadno sql lo que debe ejecutar y en que conexion hacerlo
+                SqlCommand command = new SqlCommand(queryString, connection);
+                //  command.ExecuteReader(queryString);
+                //string buy = "BUY";
+                command.Parameters.AddWithValue("@action", action);
+                // command.Parameters.AddWithValue("@GETDATE", "GETDATE()");
+                command.Parameters.AddWithValue("@symbol", symbol);
+                command.Parameters.AddWithValue("@quantity", quantity);
+                command.Parameters.AddWithValue("@price", price);
+                //ejecuta el codigo sql y guarda en reader
+
+                // SqlDataReader reader = command.ExecuteReader();
 
 
-            string respuestas = "Se CARGO LA ORDEN";
-            //cierrra la conexion
-            connection.Close();
-            //muestra la lista de resutltado
-            return (respuestas);
+                SqlDataReader reader = command.ExecuteReader();
 
+                string respuestas = "Se CARGO LA ORDEN";
+                //cierrra la conexion
+                connection.Close();
+                //muestra la lista de resutltado
+                return (respuestas);
+            }
+            else
+            {
+                return "ingresar en action SELL o BUY";
+            }
         }
 
        
