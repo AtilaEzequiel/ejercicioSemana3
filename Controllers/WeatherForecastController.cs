@@ -247,6 +247,101 @@ namespace ejercicioSemana3.Controllers
             }
         }
 
-       
+
+
+        [HttpPost]
+        [Route("IngresoDeOrdenModel")]
+        public dynamic IngresoDeOrdenModel(OrdenHistoryModel OHM)
+        {
+            if (OHM.Action == "SELL" || OHM.Action == "BUY")
+            {
+                SqlConnection connection = new SqlConnection(connectionString);
+                //abre la coencta
+                connection.Open();
+                // guarda en un string el codigo sql a ejecutar
+                //string queryString = "Select * from Carrera";
+
+                string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, 'PENDING', @symbol, @quantity, @price) ";
+                //  string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES ('@GETDATE', '@action', 'PENDING', '@symbol', @quantity, @price) SELECT * FROM ORDERS_HISTORY WHERE ORDER_DATE= GETDATE() AND STATUS='PENDING' AND QUANTITY=@quantity AND PRICE=@price AND ACTION='@action' AND SYMBOL='@symbol'";
+
+                // no me acurdo, creoq ue guarda en un comadno sql lo que debe ejecutar y en que conexion hacerlo
+                SqlCommand command = new SqlCommand(queryString, connection);
+                //  command.ExecuteReader(queryString);
+                //string buy = "BUY";
+                command.Parameters.AddWithValue("@action", OHM.Action);
+                // command.Parameters.AddWithValue("@GETDATE", "GETDATE()");
+                command.Parameters.AddWithValue("@symbol", OHM.Symbol);
+                command.Parameters.AddWithValue("@quantity", OHM.Quantity);
+                command.Parameters.AddWithValue("@price", OHM.Price);
+                //ejecuta el codigo sql y guarda en reader
+
+                // SqlDataReader reader = command.ExecuteReader();
+
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                string respuestas = "Se CARGO LA ORDEN";
+                //cierrra la conexion
+                connection.Close();
+                //muestra la lista de resutltado
+                return (respuestas);
+            }
+            else
+            {
+                return "ingresar en action SELL o BUY";
+            }
+        }
+/*
+        [HttpPost]
+        [Route("IngresoDeOrdenFor")]
+        public dynamic IngresoDeOrdenFor(OrdenHistoryModel OHM)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            foreach (OrdenHistoryModel O in OHM)
+            {
+
+                string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, 'PENDING', @symbol, @quantity, @price) ";
+                //  string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES ('@GETDATE', '@action', 'PENDING', '@symbol', @quantity, @price) SELECT * FROM ORDERS_HISTORY WHERE ORDER_DATE= GETDATE() AND STATUS='PENDING' AND QUANTITY=@quantity AND PRICE=@price AND ACTION='@action' AND SYMBOL='@symbol'";
+
+                // no me acurdo, creoq ue guarda en un comadno sql lo que debe ejecutar y en que conexion hacerlo
+                SqlCommand command = new SqlCommand(queryString, connection);
+                //  command.ExecuteReader(queryString);
+                //string buy = "BUY";
+                command.Parameters.AddWithValue("@action", O.Action);
+                // command.Parameters.AddWithValue("@GETDATE", "GETDATE()");
+                command.Parameters.AddWithValue("@symbol", O.Symbol);
+                command.Parameters.AddWithValue("@quantity", O.Quantity);
+                command.Parameters.AddWithValue("@price", O.Price);
+                //ejecuta el codigo sql y guarda en reader
+
+
+            }
+            if (OHM.Action == "SELL" || OHM.Action == "BUY")
+            {
+               
+                //abre la coencta
+               
+                // guarda en un string el codigo sql a ejecutar
+                //string queryString = "Select * from Carrera";
+
+                
+                // SqlDataReader reader = command.ExecuteReader();
+
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                string respuestas = "Se CARGO LA ORDEN";
+                //cierrra la conexion
+                connection.Close();
+                //muestra la lista de resutltado
+                return (respuestas);
+            }
+            else
+            {
+                return "ingresar en action SELL o BUY";
+            }
+        }
+*/
     }
 }
