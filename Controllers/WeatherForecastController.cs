@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ejercicioSemana3.Models;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
+using System.Net;
 
 namespace ejercicioSemana3.Controllers
 {
@@ -295,12 +296,12 @@ namespace ejercicioSemana3.Controllers
             }
             catch (Exception)
             {
-
+               
                 throw;
             }
             
         }
-
+/*
         [HttpPost]
         [Route("IngresoDeOrdenFor")]
         public dynamic IngresoDeOrdenFor(ordersHistory OHM)
@@ -351,6 +352,6 @@ namespace ejercicioSemana3.Controllers
                 return "ingresar en action SELL o BUY";
             }
         }
-
+*/
     }
 }
