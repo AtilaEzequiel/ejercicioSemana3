@@ -152,19 +152,19 @@ namespace ejercicioSemana3.Controllers
 
         [HttpPost]
         [Route("Filtradoaño")]
-        public dynamic Filtradoaño(int alo)
+        public dynamic Filtradoaño(int year)
         {
             SqlConnection connection = new SqlConnection(connectionString);
             //abre la coencta
             connection.Open();
             // guarda en un string el codigo sql a ejecutar
             //string queryString = "Select * from Carrera";
-            string queryString = "Select * from ORDERS_HISTORY where ORDER_DATE like @alo;";
+            string queryString = "Select * from ORDERS_HISTORY where ORDER_DATE like @year;";
             //string queryString = "INSERT INTO MovieADO (Id, titulo, fecha, genero, precio) VALUES (10, 'Delta', 15/12/1999, 'magia', 600);";
             // no me acurdo, creoq ue guarda en un comadno sql lo que debe ejecutar y en que conexion hacerlo
             SqlCommand command = new SqlCommand(queryString, connection);
             //  command.ExecuteReader(queryString);
-            command.Parameters.AddWithValue("@alo", "%"+alo+"%");
+            command.Parameters.AddWithValue("@alo", "%"+year+"%");
             //ejecuta el codigo sql y guarda en reader
 
             SqlDataReader reader = command.ExecuteReader();
@@ -201,6 +201,38 @@ namespace ejercicioSemana3.Controllers
 
         }
 
+        [HttpPost]
+        [Route("CreateOrden")]
+        public dynamic CreateOrden(List<Orden> ordenes)
+        {
+          
+                try
+                {
+                    SqlConnection connection = new SqlConnection(connectionString);
+                    connection.Open();
+                    string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price) ";
+
+                    foreach (Orden orden in ordenes)
+                    {
+                        SqlCommand command = new SqlCommand(queryString, connection);
+                        command.Parameters.AddWithValue("@action", orden.Action);
+                        command.Parameters.AddWithValue("@symbol", orden.Symbol);
+                        command.Parameters.AddWithValue("@status", orden.Status);
+                        command.Parameters.AddWithValue("@quantity", orden.Quantity);
+                        command.Parameters.AddWithValue("@price", orden.Price);
+
+                        SqlDataReader reader = command.ExecuteReader();
+                    }
+                    connection.Close();
+
+                 return HttpStatusCode.OK;
+
+                } catch(Exception e)
+                {
+                    return e;
+                }
+        }
+        
 
 
 
