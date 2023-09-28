@@ -30,6 +30,7 @@ namespace ejercicioSemana3.Controllers
                 orderHistories.Add(orderHistory);
             }
 
+            sqlConnection.Close();
             return orderHistories;
         }
 
