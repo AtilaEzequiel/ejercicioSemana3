@@ -2,6 +2,8 @@
 using ejercicioSemana3.Models;
 using Microsoft.Data.SqlClient;
 using System.Net;
+using System.Reflection.PortableExecutable;
+using System.Text.RegularExpressions;
 
 namespace ejercicioSemana3.Controllers
 {
@@ -66,7 +68,7 @@ namespace ejercicioSemana3.Controllers
         }
 
         [HttpPost]
-        [Route("createOrders")]
+        [Route("createOrdersHistories")]
         public List<OrderHistoryDTO> createOrderHistories(List<OrderHistoryDTO> orderHistoriesToInsert)
         {
             try
@@ -92,7 +94,8 @@ namespace ejercicioSemana3.Controllers
                 connection.Close();
                 return orderHistories;
 
-            } catch (Exception ex)
+            } 
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -110,5 +113,102 @@ namespace ejercicioSemana3.Controllers
             orderHistory.Price = decimal.Parse(reader[6].ToString());
             return orderHistory;
         }
+        
+
+
+        private decimal unit_price(string symbol)
+        {
+            List<price> unit_price = new List<price>();
+
+            string query = "select * from dbo.STOCK_MARKET_SHARES s where s.SYMBOL=@symbol";
+
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
+            sqlConnection.Open();
+            //string symbol1= symbol.Replace('"','¡');
+
+
+            string str = symbol;
+            str = string.Join("", str.Split('"', ',', '.', ';', '\''));
+            Console.WriteLine(str);
+
+            SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+            sqlCommand.Parameters.AddWithValue("@symbol",str);
+          
+            SqlDataReader reader = sqlCommand.ExecuteReader();
+            //string Unit_prices;
+             decimal precio=0;
+            while (reader.Read())
+            {
+                price unit_prices = new price();
+
+                unit_prices.Id = int.Parse(reader[0].ToString());
+                unit_prices.Symbol = reader[1].ToString();
+
+                unit_prices.Unit_price = decimal.Parse(reader[2].ToString());
+                precio = unit_prices.Unit_price;
+                //unit_price.Add(unit_prices);
+            }
+            
+
+             
+            //unit_prices.Unit_price = decimal.Parse(reader[0].ToString());
+
+            //decimal prices = decimal.Parse(unit_price);
+            sqlConnection.Close();
+            return precio;
+        }
+         
+
+        [HttpPost]
+        [Route("createOrders")]
+        public List<OrderHistoryDTO> createOrderParte2(List<OrderHistoryDTO> orderHistoriesToInsert)
+        {
+            try
+            {
+                List<OrderHistoryDTO> orderHistories = new List<OrderHistoryDTO>();
+                string queryString = "INSERT INTO ORDERS (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price); " +
+                    "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price) ";
+
+                SqlConnection connection = new SqlConnection(connectionString);
+                connection.Open();
+               
+                foreach (OrderHistoryDTO order in orderHistoriesToInsert)
+                {
+                    // decimal ART = decimal.Parse( unit_price(order.Symbol).ToString());
+                   
+                    order.Price= unit_price(order.Symbol);
+                    order.Price = order.Price * order.Quantity;
+                   // Console.WriteLine(ART.ToString());
+                     //decimal price =unit_price(order.Symbol);
+                    SqlCommand command = new SqlCommand(queryString, connection);
+
+                    
+                    command.Parameters.AddWithValue("@action", order.Action);
+                    command.Parameters.AddWithValue("@status", order.Status);
+                    command.Parameters.AddWithValue("@symbol", order.Symbol);
+                    command.Parameters.AddWithValue("@quantity", order.Quantity);
+                    command.Parameters.AddWithValue("@price", order.Price);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    orderHistories.Add(order);
+                    // SI LA CUENTA DE PRICEO NO TE QUEDA EN DECIMAL FALLA
+                }
+
+                
+
+               
+                connection.Close();
+                return orderHistories;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            
+        }
+
+        
     }
 }
