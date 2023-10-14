@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 
 namespace ejercicioSemana3.Controllers
 {
@@ -11,7 +12,9 @@ namespace ejercicioSemana3.Controllers
     [ApiController]
     public class OrderHistoryController : ControllerBase
     {
-        private readonly string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=BDp6;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
+        private readonly string connectionString = 
+            //"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=BDp6;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False" +
+             "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=BDp6Parte2;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
 
         [HttpGet]
         [Route("ordersHistory")]
@@ -179,8 +182,13 @@ namespace ejercicioSemana3.Controllers
                    
                     order.Price= unit_price(order.Symbol);
                     order.Price = order.Price * order.Quantity;
-                   // Console.WriteLine(ART.ToString());
-                     //decimal price =unit_price(order.Symbol);
+                    // Console.WriteLine(ART.ToString());
+                    //decimal price =unit_price(order.Symbol);
+
+                    if (order.Status == "FILED")
+                    {
+
+                    }
                     SqlCommand command = new SqlCommand(queryString, connection);
 
                     
@@ -210,6 +218,132 @@ namespace ejercicioSemana3.Controllers
             
         }
 
-        
+
+
+
+        [HttpPost]
+        [Route("createOrdersMejorado")]
+        public List<OrderHistoryDTO> createOrderParte2Mejorado(List<OrderHistoryDTO> orderHistoriesToInsert)
+        {
+            try
+            {
+                List<OrderHistoryDTO> orderHistories = new List<OrderHistoryDTO>();
+                string queryString =
+                    // "INSERT INTO ORDERS (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price); " +
+                    "INSERT INTO ORDERS_HISTORY (TX_NUMBER, ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (@id, GETDATE(), @action, @status, @symbol, @quantity, @price) "
+                    ;
+                // usar trigger
+
+                SqlConnection connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                foreach (OrderHistoryDTO order in orderHistoriesToInsert)
+                {
+                    // decimal ART = decimal.Parse( unit_price(order.Symbol).ToString());
+                    string ErrorStatus = "No a ingresado un estado valido intente con FILLED, EXECUTED, CANCELLED o PENDING.";
+
+                    order.Price = unit_price(order.Symbol);
+                    order.Price = order.Price * order.Quantity;
+                    // Console.WriteLine(ART.ToString());
+                    //decimal price =unit_price(order.Symbol);
+                    int txnumer = 0;
+                    //FILLED, EXECUTED, CANCELLED o PENDING.(**)
+                    if (order.Status == "FILLED")
+                    {
+                        txnumer = agregar(order);
+                        SqlCommand command = new SqlCommand(queryString, connection);
+
+                        command.Parameters.AddWithValue("@id", txnumer);
+                        command.Parameters.AddWithValue("@action", order.Action);
+                        command.Parameters.AddWithValue("@status", order.Status);
+                        command.Parameters.AddWithValue("@symbol", order.Symbol);
+                        command.Parameters.AddWithValue("@quantity", order.Quantity);
+                        command.Parameters.AddWithValue("@price", order.Price);
+
+                        SqlDataReader reader = command.ExecuteReader();
+                        orderHistories.Add(order);
+
+                    }
+                    if (order.Status == "EXECUTED")
+                    {
+                        txnumer = agregar(order);
+                    }
+                    if (order.Status == "CANCELLED")
+                    {
+                        txnumer = agregar(order);
+                    }
+                    if (order.Status == "PENDING")
+                    {
+                        txnumer = agregar(order);
+                    }
+                    else
+                    {
+                        
+                        //return "No a ingresado un estado valido intente con FILLED, EXECUTED, CANCELLED o PENDING";
+                    }
+
+                    
+                    // SI LA CUENTA DE PRICEO NO TE QUEDA EN DECIMAL FALLA
+                }
+
+
+
+
+                connection.Close();
+                return orderHistories;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+
+        }
+
+        private int agregar(OrderHistoryDTO order)
+        {
+            List<price> unit_price = new List<price>();
+
+            string query = "INSERT INTO ORDERS (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price);"+
+                "Select * from ORDERS WHERE ORDER_DATE=GETDATE()";
+
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
+            sqlConnection.Open();
+            //string symbol1= symbol.Replace('"','¡');
+
+
+
+
+            SqlCommand command = new SqlCommand(query, sqlConnection);
+
+
+            command.Parameters.AddWithValue("@action", order.Action);
+            command.Parameters.AddWithValue("@status", order.Status);
+            command.Parameters.AddWithValue("@symbol", order.Symbol);
+            command.Parameters.AddWithValue("@quantity", order.Quantity);
+            command.Parameters.AddWithValue("@price", order.Price);
+
+            SqlDataReader reader = command.ExecuteReader();
+           
+            int txnumer= 0;
+            while (reader.Read())
+            {
+                ordersHistory solo_id = new ordersHistory();
+
+                solo_id.id = int.Parse(reader[0].ToString());
+                txnumer = solo_id.id;
+                //unit_price.Add(unit_prices);
+            }
+
+
+
+            //unit_prices.Unit_price = decimal.Parse(reader[0].ToString());
+
+            //decimal prices = decimal.Parse(unit_price);
+            sqlConnection.Close();
+            return txnumer;
+        }
+
     }
 }

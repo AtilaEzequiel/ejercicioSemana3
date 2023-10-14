@@ -1,3 +1,6 @@
+using ejercicioSemana3.Extensions;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,6 +22,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseErrorHandler();
 
 app.MapControllers();
 
