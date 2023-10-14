@@ -229,8 +229,9 @@ namespace ejercicioSemana3.Controllers
             {
                 List<OrderHistoryDTO> orderHistories = new List<OrderHistoryDTO>();
                 string queryString =
-                    // "INSERT INTO ORDERS (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price); " +
-                    "INSERT INTO ORDERS_HISTORY (TX_NUMBER, ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (@id, GETDATE(), @action, @status, @symbol, @quantity, @price) "
+                 // "INSERT INTO ORDERS (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price); " +
+                 //   "INSERT INTO ORDERS_HISTORY (TX_NUMBER, ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (@id, GETDATE(), @action, @status, @symbol, @quantity, @price) "+
+                 "select * from ORDERS";
                     ;
                 // usar trigger
 
@@ -250,7 +251,17 @@ namespace ejercicioSemana3.Controllers
                     //FILLED, EXECUTED, CANCELLED o PENDING.(**)
                     if (order.Status == "FILLED")
                     {
-                        txnumer = agregar(order);
+                        txnumer = agregarORDER(order);
+                        txnumer = agregarORDER_HISTORY(order, txnumer);
+                        SqlCommand command = new SqlCommand(queryString, connection);
+                        command.Parameters.AddWithValue("@id", txnumer);
+                        orderHistories.Add(order);
+
+
+                    }
+                    if (order.Status == "EXECUTED")
+                    {
+                        txnumer = agregarORDER(order);
                         SqlCommand command = new SqlCommand(queryString, connection);
 
                         command.Parameters.AddWithValue("@id", txnumer);
@@ -262,19 +273,14 @@ namespace ejercicioSemana3.Controllers
 
                         SqlDataReader reader = command.ExecuteReader();
                         orderHistories.Add(order);
-
-                    }
-                    if (order.Status == "EXECUTED")
-                    {
-                        txnumer = agregar(order);
                     }
                     if (order.Status == "CANCELLED")
                     {
-                        txnumer = agregar(order);
+                        txnumer = agregarORDER(order);
                     }
                     if (order.Status == "PENDING")
                     {
-                        txnumer = agregar(order);
+                        txnumer = agregarORDER(order);
                     }
                     else
                     {
@@ -301,7 +307,7 @@ namespace ejercicioSemana3.Controllers
 
         }
 
-        private int agregar(OrderHistoryDTO order)
+        private int agregarORDER(OrderHistoryDTO order)
         {
             List<price> unit_price = new List<price>();
 
@@ -327,6 +333,50 @@ namespace ejercicioSemana3.Controllers
             SqlDataReader reader = command.ExecuteReader();
            
             int txnumer= 0;
+            while (reader.Read())
+            {
+                ordersHistory solo_id = new ordersHistory();
+
+                solo_id.id = int.Parse(reader[0].ToString());
+                txnumer = solo_id.id;
+                //unit_price.Add(unit_prices);
+            }
+
+
+
+            //unit_prices.Unit_price = decimal.Parse(reader[0].ToString());
+
+            //decimal prices = decimal.Parse(unit_price);
+            sqlConnection.Close();
+            return txnumer;
+        }
+
+        private int agregarORDER_HISTORY(OrderHistoryDTO order, int id)
+        {
+            List<price> unit_price = new List<price>();
+
+            string query = "INSERT INTO ORDERS_HISTORY (TX_NUMBER, ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (@id, GETDATE(), @action, @status, @symbol, @quantity, @price) "
+                + "select TX_NUMBER from ORDERS_HISTORY WHERE TX_NUMBER=@id";
+
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
+            sqlConnection.Open();
+            //string symbol1= symbol.Replace('"','¡');
+
+
+
+
+            SqlCommand command = new SqlCommand(query, sqlConnection);
+
+            command.Parameters.AddWithValue("@id", id);            
+            command.Parameters.AddWithValue("@action", order.Action);
+            command.Parameters.AddWithValue("@status", order.Status);
+            command.Parameters.AddWithValue("@symbol", order.Symbol);
+            command.Parameters.AddWithValue("@quantity", order.Quantity);
+            command.Parameters.AddWithValue("@price", order.Price);
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            int txnumer = 0;
             while (reader.Read())
             {
                 ordersHistory solo_id = new ordersHistory();
