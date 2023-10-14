@@ -168,6 +168,7 @@ namespace ejercicioSemana3.Controllers
                 List<OrderHistoryDTO> orderHistories = new List<OrderHistoryDTO>();
                 string queryString = "INSERT INTO ORDERS (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price); " +
                     "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, @status, @symbol, @quantity, @price) ";
+                // usar trigger
 
                 SqlConnection connection = new SqlConnection(connectionString);
                 connection.Open();
@@ -193,7 +194,7 @@ namespace ejercicioSemana3.Controllers
                     orderHistories.Add(order);
                     // SI LA CUENTA DE PRICEO NO TE QUEDA EN DECIMAL FALLA
                 }
-
+                
                 
 
                
