@@ -1,5 +1,5 @@
 using ejercicioSemana3.Extensions;
-
+using ejercicioSemana3.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +18,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//comenentar si no me deja ahcer alguna operacion
+app.UseMiddleware<BasicAuthenticationHandlerMiddleware>("Test");
+
 
 app.UseHttpsRedirection();
 
