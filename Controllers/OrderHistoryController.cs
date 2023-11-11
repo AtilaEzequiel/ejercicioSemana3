@@ -529,6 +529,7 @@ namespace ejercicioSemana3.Controllers
                 command.Parameters.AddWithValue("@symbol", symbol);
                 command.Parameters.AddWithValue("@quantity", quantity);
                 command.Parameters.AddWithValue("@price", price);
+
                 //ejecuta el codigo sql y guarda en reader
 
                 // SqlDataReader reader = command.ExecuteReader();
