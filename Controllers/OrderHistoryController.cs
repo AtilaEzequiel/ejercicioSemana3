@@ -260,7 +260,7 @@ namespace ejercicioSemana3.Controllers
                     if (order.Status == "EXECUTED")
                     {
                         txnumer = agregarORDER(order);
-                        txnumer = agregarORDER(order);
+                      
                         txnumer = agregarORDER_HISTORY(order, txnumer);
                         SqlCommand command = new SqlCommand(queryString, connection);
                         command.Parameters.AddWithValue("@id", txnumer);
@@ -269,7 +269,7 @@ namespace ejercicioSemana3.Controllers
                     if (order.Status == "CANCELLED")
                     {
                         txnumer = agregarORDER(order);
-                        txnumer = agregarORDER(order);
+                        
                         txnumer = agregarORDER_HISTORY(order, txnumer);
                         SqlCommand command = new SqlCommand(queryString, connection);
                         command.Parameters.AddWithValue("@id", txnumer);
@@ -277,7 +277,7 @@ namespace ejercicioSemana3.Controllers
                     }
                     if (order.Status == "PENDING")
                     {
-                        txnumer = agregarORDER(order);
+                        
                         txnumer = agregarORDER(order);
                         txnumer = agregarORDER_HISTORY(order, txnumer);
                         SqlCommand command = new SqlCommand(queryString, connection);
@@ -502,5 +502,51 @@ namespace ejercicioSemana3.Controllers
             orderHistory.Price = decimal.Parse(reader[6].ToString());
             return orderHistory;
         }
+
+        /*
+
+        [HttpPost]
+        [Route("IngresoDeOrden")]
+        public dynamic IngresoDeOrden(string action, string symbol, int quantity, decimal price)
+        {
+            if (action == "SELL" || action == "BUY")
+            {
+                SqlConnection connection = new SqlConnection(connectionString);
+                //abre la coencta
+                connection.Open();
+                // guarda en un string el codigo sql a ejecutar
+                //string queryString = "Select * from Carrera";
+
+                string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES (GETDATE(), @action, 'PENDING', @symbol, @quantity, @price) ";
+                //  string queryString = "INSERT INTO ORDERS_HISTORY (ORDER_DATE, ACTION, STATUS, SYMBOL, QUANTITY, PRICE) VALUES ('@GETDATE', '@action', 'PENDING', '@symbol', @quantity, @price) SELECT * FROM ORDERS_HISTORY WHERE ORDER_DATE= GETDATE() AND STATUS='PENDING' AND QUANTITY=@quantity AND PRICE=@price AND ACTION='@action' AND SYMBOL='@symbol'";
+
+                // no me acurdo, creoq ue guarda en un comadno sql lo que debe ejecutar y en que conexion hacerlo
+                SqlCommand command = new SqlCommand(queryString, connection);
+                //  command.ExecuteReader(queryString);
+                //string buy = "BUY";
+                command.Parameters.AddWithValue("@action", action);
+                // command.Parameters.AddWithValue("@GETDATE", "GETDATE()");
+                command.Parameters.AddWithValue("@symbol", symbol);
+                command.Parameters.AddWithValue("@quantity", quantity);
+                command.Parameters.AddWithValue("@price", price);
+                //ejecuta el codigo sql y guarda en reader
+
+                // SqlDataReader reader = command.ExecuteReader();
+
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                string respuestas = "Se CARGO LA ORDEN";
+                //cierrra la conexion
+                connection.Close();
+                //muestra la lista de resutltado
+                return (respuestas);
+            }
+            else
+            {
+                return "ingresar en action SELL o BUY";
+            }
+        }
+        */
     }
 }
